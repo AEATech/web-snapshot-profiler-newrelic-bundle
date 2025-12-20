@@ -14,11 +14,8 @@ services:
     working_dir: /app
     volumes:
       - ../../web-snapshot-profiler-newrelic-bundle:/app:rw
-      - /home/${USER}/.ssh:/home/${USER}/.ssh:ro
     depends_on:
       - daemon
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
   php-cli-8.3:
     build:
       context: 8.3/
@@ -31,11 +28,8 @@ services:
     working_dir: /app
     volumes:
       - ../../web-snapshot-profiler-newrelic-bundle:/app:rw
-      - /home/${USER}/.ssh:/home/${USER}/.ssh:ro
     depends_on:
       - daemon
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
   php-cli-8.4:
     build:
       context: 8.4/
@@ -48,8 +42,5 @@ services:
     working_dir: /app
     volumes:
       - ../../web-snapshot-profiler-newrelic-bundle:/app:rw
-      - /home/${USER}/.ssh:/home/${USER}/.ssh:ro
     depends_on:
       - daemon
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
