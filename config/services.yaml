@@ -1,0 +1,33 @@
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    AEATech\SnapshotProfilerNewrelic\:
+        resource: '../vendor/aeatech/snapshot-profiler-newrelic/src/AEATech/SnapshotProfilerNewrelic'
+
+    AEATech\SnapshotProfiler\:
+        resource: '../vendor/aeatech/snapshot-profiler/src/AEATech/SnapshotProfiler'
+
+    AEATech\WebSnapshotProfilerEventSubscriber\:
+        resource: '../vendor/aeatech/web-snapshot-profiler-event-subscriber/src/AEATech/WebSnapshotProfilerEventSubscriber'
+    
+    aea_tech_web_snapshot_profiler_newrelic.request_param_aware.route_event_matcher:
+        class: AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\RouteEventMatcher
+
+    AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\RequestParamAwareRouteEventMatcher:
+        arguments:
+            $routeEventMatcher: '@aea_tech_web_snapshot_profiler_newrelic.request_param_aware.route_event_matcher'
+
+    AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\EventMatcher:
+        arguments:
+            $eventMatchers: !tagged_iterator aeatech_web_snapshot_profiler_newrelic.event_matcher
+
+    AEATech\SnapshotProfilerContracts\ProfilerInterface: '@AEATech\SnapshotProfiler\Profiler'
+    AEATech\SnapshotProfilerContracts\FilterInterface: '@AEATech\SnapshotProfilerNewrelic\Filter'
+    AEATech\SnapshotProfilerContracts\SaverInterface: '@AEATech\SnapshotProfilerNewrelic\Saver'
+    AEATech\SnapshotProfilerContracts\AdapterInterface: '@AEATech\SnapshotProfilerNewrelic\Adapter'
+
+    AEATech\WebSnapshotProfilerNewrelicBundle\:
+        resource: '../src'

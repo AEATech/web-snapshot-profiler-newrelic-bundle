@@ -1,0 +1,43 @@
+aea_tech_web_snapshot_profiler_newrelic:
+    is_profiling_enabled: true
+
+    ###
+    # newrelic configuration
+    ###
+    newrelic:
+        app_name: 'test'
+        license: 'license key'
+
+    ###
+    # Event matched configuration - START
+    ###
+    event_matcher:
+        is_profile_all_routes: false
+
+        # Enable profile if header was set (\AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\HeaderEventMatcher)
+        header:
+            is_enabled: false
+            name: 'x-profiling-header'
+            value: '1'
+
+        # Enable profile if request param was set and route matched (\AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\RequestParamAwareRouteEventMatcher)
+        request:
+            is_enabled: false
+            name: 'x-profile-request-param'
+            route_to_probability: []
+
+        # Enabled profile if route matched and probability happened
+        route:
+            is_enabled: true
+            route_to_probability:
+                # 1% probability to profile route
+                -
+                    route_name: 'app_route_name_to_profile_1_percent_requests'
+                    probability: 1
+                # 100% probability to profile route
+                -
+                    route_name: 'app_route_name_to_profile_every_request'
+                    probability: 100
+    ###
+    # Event matched configuration - END
+    ###
