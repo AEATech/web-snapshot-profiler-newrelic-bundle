@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1766241706">
-  <project timestamp="1766241706" name="Clover Coverage">
+<coverage generated="1766242030">
+  <project timestamp="1766242030" name="Clover Coverage">
     <package name="AEATech\WebSnapshotProfilerNewrelicBundle">
       <file name="/app/src/AEATechWebSnapshotProfilerNewrelicBundle.php">
         <class name="AEATech\WebSnapshotProfilerNewrelicBundle\AEATechWebSnapshotProfilerNewrelicBundle" namespace="AEATech\WebSnapshotProfilerNewrelicBundle">
