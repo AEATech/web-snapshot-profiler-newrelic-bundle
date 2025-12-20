@@ -2,7 +2,7 @@
 
 [![Code Coverage](.build/coverage_badge.svg)](.build/clover.xml)
 
-The package contains symfony bundle to profile applications with newrelic.
+The package contains symfony bundle to profile web applications with newrelic.
 It can be used for production profiling.
 
 System requirements:
