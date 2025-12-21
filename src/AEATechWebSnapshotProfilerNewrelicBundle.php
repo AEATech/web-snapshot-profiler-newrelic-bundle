@@ -3,11 +3,6 @@ declare(strict_types=1);
 
 namespace AEATech\WebSnapshotProfilerNewrelicBundle;
 
-use AEATech\SnapshotProfilerNewrelic\Adapter;
-use AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\AllEventMatcher;
-use AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\HeaderEventMatcher;
-use AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\RequestParamAwareRouteEventMatcher;
-use AEATech\WebSnapshotProfilerEventSubscriber\EventMatcher\RouteEventMatcher;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -39,10 +34,20 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
     public const CONFIG_KEY_ROUTE_NAME = 'route_name';
     public const CONFIG_KEY_PROBABILITY = 'probability';
 
-    public const SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER
-        = 'aea_tech_web_snapshot_profiler_newrelic.request_param_aware.route_event_matcher';
+    public const SERVICE_NAME_ADAPTER = self::BUNDLE_PREFIX . 'adapter';
+    public const SERVICE_NAME_ALL_EVENT_MATCHER = self::EVENT_MATCHER_PREFIX . 'all';
+    public const SERVICE_NAME_HEADER_EVENT_MATCHER = self::EVENT_MATCHER_PREFIX . 'header';
+    public const SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER_INNER = self::EVENT_MATCHER_PREFIX .
+        'request_param_aware.route_event.inner';
+    public const SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER = self::EVENT_MATCHER_PREFIX .
+        'request_param_aware_route_event';
+    public const SERVICE_NAME_ROUTE_EVENT_MATCHER = self::EVENT_MATCHER_PREFIX . 'route';
 
-    public const TAG_EVENT_MATCHER = 'aeatech_web_snapshot_profiler_newrelic.event_matcher';
+    public const TAG_EVENT_MATCHER = self::BUNDLE_PREFIX . 'event_matcher.item';
+
+    private const BUNDLE_PREFIX = 'aea_tech_web_snapshot_profiler_newrelic.';
+    private const EVENT_MATCHER_PREFIX = self::BUNDLE_PREFIX . 'event_matcher.';
+
 
     /**
      * @param array $routeToProbability
@@ -178,14 +183,15 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        $path = $this->getPath();
+
+        $container->import($path . '/config/services.yaml');
+
+        $services = $container->services();
+
+        $this->initAdapter($config, $services);
+
         if ($config[self::CONFIG_KEY_IS_PROFILING_ENABLED]) {
-            $path = $this->getPath();
-
-            $container->import($path . '/config/services.yaml');
-
-            $services = $container->services();
-
-            $this->initAdapter($config, $services);
             $this->initEventMatcher($config, $services);
         }
     }
@@ -200,7 +206,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
     {
         $newrelic = $config[self::CONFIG_KEY_NEWRELIC];
 
-        $services->get(Adapter::class)
+        $services->get(self::SERVICE_NAME_ADAPTER)
             ->arg('$appName', $newrelic[self::CONFIG_KEY_NEWRELIC_APP_NAME])
             ->arg('$license', $newrelic[self::CONFIG_KEY_NEWRELIC_LICENSE]);
     }
@@ -237,7 +243,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
      */
     private function initAllEventMatcher(ServicesConfigurator $services, array &$taggedEventMatchers): void
     {
-        $taggedEventMatchers[] = $services->get(AllEventMatcher::class);
+        $taggedEventMatchers[] = $services->get(self::SERVICE_NAME_ALL_EVENT_MATCHER);
     }
 
     /**
@@ -255,7 +261,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
         $headerProfiling = $eventMatcher[self::CONFIG_KEY_HEADER];
 
         if ($headerProfiling[self::CONFIG_KEY_IS_ENABLED]) {
-            $headerEventMatcher = $services->get(HeaderEventMatcher::class);
+            $headerEventMatcher = $services->get(self::SERVICE_NAME_HEADER_EVENT_MATCHER);
             $headerEventMatcher->arg('$headerProfilingName', $headerProfiling[self::CONFIG_KEY_NAME])
                 ->arg('$headerProfilingValueEnabled', $headerProfiling[self::CONFIG_KEY_VALUE]);
 
@@ -281,10 +287,12 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
             $routeToRandProbability = $this->getRouteToRandProbability(
                 $requestProfiling[self::CONFIG_KEY_ROUTE_TO_PROBABILITY]
             );
-            $services->get(self::SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER)
+            $services->get(self::SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER_INNER)
                 ->arg('$routeToRandProbability', $routeToRandProbability);
 
-            $requestParamAwareRouteEventMatcher = $services->get(RequestParamAwareRouteEventMatcher::class);
+            $requestParamAwareRouteEventMatcher = $services->get(
+                self::SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER
+            );
             $requestParamAwareRouteEventMatcher->arg('$requestParamName', $requestProfiling[self::CONFIG_KEY_NAME]);
 
             $taggedEventMatchers[] = $requestParamAwareRouteEventMatcher;
@@ -310,7 +318,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
                 $routeProfiling[self::CONFIG_KEY_ROUTE_TO_PROBABILITY]
             );
 
-            $routeEventMatcher = $services->get(RouteEventMatcher::class);
+            $routeEventMatcher = $services->get(self::SERVICE_NAME_ROUTE_EVENT_MATCHER);
             $routeEventMatcher->arg('$routeToRandProbability', $routeToRandProbability);
 
             $taggedEventMatchers[] = $routeEventMatcher;
