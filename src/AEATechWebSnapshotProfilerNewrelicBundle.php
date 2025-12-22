@@ -284,7 +284,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
         $requestProfiling = $eventMatcher[self::CONFIG_KEY_REQUEST];
 
         if ($requestProfiling[self::CONFIG_KEY_IS_ENABLED]) {
-            $routeToRandProbability = $this->getRouteToRandProbability(
+            $routeToRandProbability = self::getRouteToRandProbability(
                 $requestProfiling[self::CONFIG_KEY_ROUTE_TO_PROBABILITY]
             );
             $services->get(self::SERVICE_NAME_REQUEST_PARAM_AWARE_ROUTE_EVENT_MATCHER_INNER)
@@ -314,7 +314,7 @@ class AEATechWebSnapshotProfilerNewrelicBundle extends AbstractBundle
         $routeProfiling = $eventMatcher[self::CONFIG_KEY_ROUTE];
 
         if ($routeProfiling[self::CONFIG_KEY_IS_ENABLED]) {
-            $routeToRandProbability = $this->getRouteToRandProbability(
+            $routeToRandProbability = self::getRouteToRandProbability(
                 $routeProfiling[self::CONFIG_KEY_ROUTE_TO_PROBABILITY]
             );
 
